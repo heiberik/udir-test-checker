@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE structures SYSTEM "../doc/structures.dtd">
+<structures>
+	<structure id="udirTestChecker_main" name="Udir Test Checker" level="15" group="main">
+		<description />
+		<sections>
+			<section id="udirTestChecker_main" name="Udir Test Checker" url="/udirTestChecker/UdirTestChecker/index" />
+			<section id="udirTestChecker_other" name="Template" url="/udirTestChecker/UdirTestChecker/templateExample" />
+		</sections>
+	</structure>
+</structures>
