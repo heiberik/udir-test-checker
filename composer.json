@@ -20,7 +20,6 @@
     },
     "minimum-stability" : "dev",
     "require": {
-        "oat-sa/tao-core": ">=dev-master"
     },
     "autoload" : {
         "psr-4" : {
