@@ -4,8 +4,24 @@
 	<structure id="udirTestChecker_main" name="Udir Test Checker" level="15" group="main">
 		<description />
 		<sections>
-			<section id="udirTestChecker_main" name="Udir Test Checker" url="/udirTestChecker/UdirTestChecker/index" />
-			<section id="udirTestChecker_other" name="Template" url="/udirTestChecker/UdirTestChecker/templateExample" />
+            <section id="manage_tests" name="Manage tests" url="/udirTestChecker/UdirTestChecker/index">
+                <trees>
+                    <tree name="Tests library"
+                          className="Test"
+                          dataUrl="/taoTests/Tests/getOntologyData"
+                          selectClass="test-class-properties"
+                          selectInstance="test-properties"
+                          moveInstance="test-move"
+                          delete="test-delete"
+                          rootNode="http://www.tao.lu/Ontologies/TAOTest.rdf#Test"
+                        />
+                </trees>
+                <actions>
+                    <action id="wcagCheck" name="WCAG" url="/udirTestChecker/Checker/wcagCheck" group="tree" context="resource">
+                        <icon id="icon-user"/>
+                    </action>
+                </actions>
+            </section>
 		</sections>
 	</structure>
 </structures>
