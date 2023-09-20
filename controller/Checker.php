@@ -23,7 +23,7 @@ class Checker extends \tao_actions_CommonModule
         $itemsService = \taoItems_models_classes_ItemsService::singleton();
         $qtiItemService = \oat\taoQtiItem\model\qti\Service::singleton();
 
-        $info = '';
+        $info = 'HHE';
         $test = new \core_kernel_classes_Resource($this->getRequestParameter('id'));
 
         // get the items contained in the test
@@ -31,32 +31,41 @@ class Checker extends \tao_actions_CommonModule
         $xmlTest = $qtiTestService->getDoc($test);
 
 
-        // iterare over the items
+        // Iterate over the items
         foreach ($items as $item) {
-
-
-            //Parse it and build the QTI_Data_Item
+            // Parse the item and build the QTI_Item object
             $file = $qtiItemService->getXmlByRdfItem($item);
             $qtiParser = new \oat\taoQtiItem\model\qti\Parser($file);
             $qtiItem = $qtiParser->load();
 
-            //$info .= $qtiItem->getBody() . '<br>';
-            //$info .= $qtiItem->getOutcomes() . '<br>';
-            //s$info .= $qtiItem->getResponseProcessing() . '<br>';
-
+            // Get the XML content of the item
             $itemXML = $qtiItem->toXML();
-            $info .= $itemXML . '<br>';
 
-            // find outcomedeclaration in xml document with identifier="MAXSCORE"
+            //$info .= $itemXML . '<br>';
+
+
+            // Use DOMDocument and DOMXPath to search for specific elements in the XML
             $dom = new \DOMDocument();
             $dom->loadXML($itemXML);
             $xpath = new \DOMXPath($dom);
-            $query = '<outcomedeclaration identifier="MAXSCORE"';
-            $outcomeDeclaration = $xpath->query($query);
 
-            // add all elements in the DOMNode list to the info string
-            foreach ($outcomeDeclaration as $node) {
-                $info .= $node->nodeValue . '<br>';
+            // Example: Find all elements with a specific tag name (replace 'tagName' with the actual tag name)
+            $elements = $xpath->query('//outcomedeclaration');
+
+            // Iterate over the found elements
+            foreach ($elements as $element) {
+                // Do something with the element, e.g., extract its value
+                $elementValue = $element->nodeValue;
+                $info .= 'Found element with value: ' . $elementValue . '<br>';
+            }
+
+            // Example: Find elements with a specific attribute (replace 'attributeName' and 'attributeValue' with actual values)
+            $elementsWithAttribute = $xpath->query('//outcomedeclaration[@attributeName="MAXSCORE"]');
+
+            // Iterate over the elements with the specified attribute
+            foreach ($elementsWithAttribute as $element) {
+                // Do something with the matching element
+                $info .= 'Found element with attribute: ' . $element->getAttribute('attributeName') . '<br>';
             }
         }
 
