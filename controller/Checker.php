@@ -37,25 +37,27 @@ class Checker extends \tao_actions_CommonModule
 
             //Parse it and build the QTI_Data_Item
             $file = $qtiItemService->getXmlByRdfItem($item);
-            $qtiParser = new Parser($file);
-            $returnValue = $qtiParser->load();
+            $qtiParser = new \oat\taoQtiItem\model\qti\Parser($file);
+            $qtiItem = $qtiParser->load();
 
+            //$info .= $qtiItem->getBody() . '<br>';
+            //$info .= $qtiItem->getOutcomes() . '<br>';
+            //s$info .= $qtiItem->getResponseProcessing() . '<br>';
 
-            //$itemXml = $qtiItemService->getXmlByRdfItem($item);
+            $itemXML = $qtiItem->toXML();
+            $info .= $itemXML . '<br>';
 
-            //$sanitized = \oat\taoQtiItem\helpers\Authoring::sanitizeQtiXml($itemXml);
-            //$qtiItem = $qtiItemService->getXmlToItemParser()->parse($sanitized);
-
-            // convert the XML to a string
-            /*
+            // find outcomedeclaration in xml document with identifier="MAXSCORE"
             $dom = new \DOMDocument();
-            $dom->preserveWhiteSpace = true;
-            $dom->formatOutput = true;
-            $dom->loadXML($itemXml);
-            $itemXml = $dom->saveXML();
-            */
+            $dom->loadXML($itemXML);
+            $xpath = new \DOMXPath($dom);
+            $query = '<outcomedeclaration identifier="MAXSCORE"';
+            $outcomeDeclaration = $xpath->query($query);
 
-            $info .= $qtiItem->getBody() . '<br>';
+            // add all elements in the DOMNode list to the info string
+            foreach ($outcomeDeclaration as $node) {
+                $info .= $node->nodeValue . '<br>';
+            }
         }
 
 
