@@ -17,7 +17,10 @@
                         />
                 </trees>
                 <actions>
-                    <action id="wcagCheck" name="WCAG" url="/udirTestChecker/Checker/wcagCheck" group="tree" context="resource">
+                    <action id="checkWcag" name="WCAG" url="/udirTestChecker/Checker/checkWcag" group="tree" context="resource">
+                        <icon id="icon-user"/>
+                    </action>
+                    <action id="checkMaxscore" name="Maxscore" url="/udirTestChecker/Checker/checkMaxscore" group="tree" context="resource">
                         <icon id="icon-user"/>
                     </action>
                 </actions>
