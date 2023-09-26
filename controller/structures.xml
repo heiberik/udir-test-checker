@@ -4,7 +4,7 @@
 	<structure id="udirTestChecker_main" name="Udir Test Checker" level="15" group="main">
 		<description />
 		<sections>
-            <section id="manage_tests" name="Manage tests" url="/udirTestChecker/UdirTestChecker/index">
+            <section id="checkItemSettings" name="Automatiske sjekker" url="/udirTestChecker/Checker/checkItemSettings">
                 <trees>
                     <tree name="Tests library"
                           className="Test"
@@ -20,7 +20,7 @@
                     <action id="checkWcag" name="WCAG" url="/udirTestChecker/Checker/checkWcag" group="tree" context="resource">
                         <icon id="icon-user"/>
                     </action>
-                    <action id="checkMaxscore" name="Maxscore" url="/udirTestChecker/Checker/checkMaxscore" group="tree" context="resource">
+                    <action id="checkItemSettings" name="Skåringsinnstillinger" url="/udirTestChecker/Checker/checkItemSettings" group="tree" context="resource">
                         <icon id="icon-user"/>
                     </action>
                 </actions>

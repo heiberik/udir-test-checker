@@ -5,10 +5,15 @@ namespace oat\udirTestChecker\controller;
 /*
     Potential checks:
     - maxscore
+    - responce processing
     - wcag
     - correct response set?
     - pcis in use
     - normal interactions in use
+    - plagiantkontroll satt på?
+
+    Ønsker å automatisere denne sjekken så mye som mulig. Første versjon greit med manuell leting og trykk på knapp. 
+    Men til neste versjon er det bra om extensionen kan søke igjennom alle tester og gi en rapport.
 */
 
 class Checker extends \tao_actions_CommonModule
@@ -21,13 +26,13 @@ class Checker extends \tao_actions_CommonModule
         parent::__construct();
     }
 
-    public function checkMaxscore()
+
+    public function checkItemSettings()
     {
 
         $testService = \taoTests_models_classes_TestsService::singleton();
         $qtiTestService = \taoQtiTest_models_classes_QtiTestService::singleton();
 
-        $info = '<h1 style="width: 100%;">Oversikt MAXSCORE:</h1><br>';
         $test = new \core_kernel_classes_Resource($this->getRequestParameter('id'));
 
         // get the items contained in the test
@@ -40,6 +45,10 @@ class Checker extends \tao_actions_CommonModule
         $tasksWithoutMaxscoreArray = array();
         $tasksWithOver1MaxscoreArray = array();
 
+        $itemArray = array();
+
+        $interactionTypes = array();
+
         // Iterate over the items
         foreach ($items as $index => $item) {
 
@@ -49,37 +58,41 @@ class Checker extends \tao_actions_CommonModule
             $xpath = new \DOMXPath($dom);
 
             $label = $item->getLabel();
+            $uri = $item->getUri();
+            $resourceString = $item->__toString();
 
-            $maxScore = (int)$this->getMaxscore($xpath);
+            $maxScore = (int) $this->getMaxscore($xpath);
+            $responceProcessing = $this->getResponceProcessing($xpath, $qtiXmlFileContent);
 
-            //$info .= "LABEL: " . $label . '<br>';
-            //$info .= "MAXSCORE: " . $maxScore . '<br>';
+            $rpArray[] = $responceProcessing;
 
             $totalNumberOfTasks++;
             if ($maxScore == 0) {
                 $tasksWithoutMaxscore++;
-                $tasksWithoutMaxscoreArray[] = $label;
+                $tasksWithoutMaxscoreArray[] = $resourceString;
             } else if ($maxScore > 1) {
                 $tasksWithOver1Maxscore++;
-                $tasksWithOver1MaxscoreArray[] = $label;
+                $tasksWithOver1MaxscoreArray[] = $resourceString;
             }
+
+            $itemArray[] = [
+                'label' => $label,
+                'uri' => $uri,
+                'resourceString' => $resourceString,
+                'maxScore' => $maxScore,
+                'responceProcessing' => $responceProcessing,
+                'warningLevel' => 0,
+            ];
         }
 
-        $info .= "<h2 style='width: 100%;'>Items total:</h2> " . $totalNumberOfTasks . '<br>';
+        $this->setData('totalNumberOfTasks', $totalNumberOfTasks);
+        $this->setData('tasksWithoutMaxscore', $tasksWithoutMaxscore);
+        $this->setData('tasksWithOver1Maxscore', $tasksWithOver1Maxscore);
+        $this->setData('tasksWithoutMaxscoreArray', $tasksWithoutMaxscoreArray);
+        $this->setData('tasksWithOver1MaxscoreArray', $tasksWithOver1MaxscoreArray);
+        $this->setData('itemArray', $itemArray);
 
-        $info .= "<br><h2 style='width: 100%;'>Items without maxscore:</h2> " . $tasksWithoutMaxscore . '<br>';
-        $info .= "Items:" . '<br>';
-        foreach ($tasksWithoutMaxscoreArray as $string) {
-            $info .= $string . "<br>";
-        }
-
-        $info .= "<br><h2 style='width: 100%;'>Items with maxscore over 1:</h2> " . $tasksWithOver1Maxscore . '<br>';
-        $info .= "Items:" . '<br>';
-        foreach ($tasksWithOver1MaxscoreArray as $string) {
-            $info .= $string . "<br>";
-        }
-
-        echo $info;
+        $this->setView('Checker/settings.tpl');
     }
 
     public function checkWcag()
@@ -136,5 +149,31 @@ class Checker extends \tao_actions_CommonModule
         }
 
         return "0";
+    }
+
+    public function getResponceProcessing(\DOMXPath $xpath, $qtiXmlFileContent)
+    {
+
+        $elements = $xpath->query("*[name(.) = 'responseProcessing']");
+
+        foreach ($elements as $element) {
+
+            $elementTemplate = $element->getAttribute('template');
+
+            if ($elementTemplate !== "") {
+                return $elementTemplate;
+            }
+
+            $pattern = '/<responseProcessing>(.*?)<\/responseProcessing>/s';
+
+            if (preg_match($pattern, $qtiXmlFileContent, $matches)) {
+                $content = $matches[1];
+                return $content;
+            } else {
+                return "Ingen responsprosessering";
+            }
+        }
+
+        return "Ingen responsprosessering";
     }
 }
