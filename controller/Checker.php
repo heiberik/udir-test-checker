@@ -3,6 +3,20 @@
 namespace oat\udirTestChecker\controller;
 
 /*
+    PCI-MØTE TING:
+        - PCI for svaksynte (har den vært til vurdering?)
+        - Møte med eksamensteam? Må prioritere hva som skal sjekkes i utvidelsen. 
+        - Hans-Otto sin forespørsel om å få Geogebra PCI
+        
+    Mest verdi for eksamen:
+        - WCAG
+            - overskrifter
+            - tomme elementer
+            - alt tekst
+        - Interaksjoner og PCIer i bruk?
+        - Er plagiatkontroll satt på?
+        - Egendefinert skåring?
+
     Potential checks:
     - maxscore
     - responce processing
@@ -26,13 +40,11 @@ class Checker extends \tao_actions_CommonModule
         parent::__construct();
     }
 
-
     public function checkItemSettings()
     {
 
         $testService = \taoTests_models_classes_TestsService::singleton();
         $qtiTestService = \taoQtiTest_models_classes_QtiTestService::singleton();
-
         $test = new \core_kernel_classes_Resource($this->getRequestParameter('id'));
 
         // get the items contained in the test
@@ -46,8 +58,7 @@ class Checker extends \tao_actions_CommonModule
         $tasksWithOver1MaxscoreArray = array();
 
         $itemArray = array();
-
-        $interactionTypes = array();
+        $interactionTypesTest = array();
 
         // Iterate over the items
         foreach ($items as $index => $item) {
@@ -63,8 +74,7 @@ class Checker extends \tao_actions_CommonModule
 
             $maxScore = (int) $this->getMaxscore($xpath);
             $responceProcessing = $this->getResponceProcessing($xpath, $qtiXmlFileContent);
-
-            $rpArray[] = $responceProcessing;
+            $interactionTypesItem[] = $this->getInteractions($xpath);
 
             $totalNumberOfTasks++;
             if ($maxScore == 0) {
@@ -81,6 +91,7 @@ class Checker extends \tao_actions_CommonModule
                 'resourceString' => $resourceString,
                 'maxScore' => $maxScore,
                 'responceProcessing' => $responceProcessing,
+                'interactionTypes' => $interactionTypesItem,
                 'warningLevel' => 0,
             ];
         }
@@ -175,5 +186,49 @@ class Checker extends \tao_actions_CommonModule
         }
 
         return "Ingen responsprosessering";
+    }
+
+    public function getInteractions(\DOMXPath $xpath){
+
+        $commonInteractionTypes[] = [
+            "choiceInteraction" => "Flervalg",
+            "orderInteraction" => "Sortering",
+            "associateInteraction" => "Kobling",
+            "matchInteraction" => "Matrise",
+            "hottextInteraction" => "Klikk ord",
+            "gapMatchInteraction" => "Fyll inn",
+            "sliderInteraction" => "Målelinje",
+            "extendedTextInteraction" => "Fritekst",
+            "uploadInteraction" => "Filopplasting",
+            "mediaInteraction" => "Mediebank"
+        ];
+
+        $inlineInteractionTypes[] = [
+            "inlineChoiceInteraction" => "Flervalg på linje (tekstboks)",
+            "textEntryInteraction" => "Skriv inn tekst (tekstboks)"
+        ];
+
+        $graphicInteractionTypes[] = [
+            "hotspotInteraction" => "Hotspot (grafisk)",
+            "graphicOrderInteraction" => "Sortering (grafisk)",
+            "graphicAssociateInteraction" => "Kobling (grafisk)",
+            "graphicGapMatchInteraction" => "Fyll inn (grafisk)",
+            "selectPointInteraction" => "Klikk punkt (grafisk)"
+        ];
+
+        $interactions = array();
+
+        $elements = $xpath->query("*[name(.) = 'outcomeDeclaration']");
+
+        foreach ($elements as $element) {
+
+            $elementValue = $element->nodeValue;
+            $elementIdentifier = $element->getAttribute('identifier');
+
+            if ($elementIdentifier == 'MAXSCORE') {
+                return $elementValue;
+            }
+
+        }
     }
 }
